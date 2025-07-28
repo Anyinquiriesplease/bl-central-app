@@ -702,3 +702,4 @@ function App() {
 // It wraps the entire App in the AuthProvider.
 const AppWrapper = () => (<AuthProvider><App /></AuthProvider>);
 export default AppWrapper;
+
