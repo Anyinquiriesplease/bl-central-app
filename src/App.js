@@ -117,8 +117,20 @@ const AuthPage = ({ setPage }) => {
     const [message, setMessage] = useState('');
     const { signUp, logIn, resetPassword } = useAuth();
     const handleSubmit = async (e) => {
-        e.preventDefault(); setError(''); setMessage('');
-        try { isLogin ? await logIn(email, password) : (await signUp(email, password), setMessage('Account created! Please log in.'), setIsLogin(true)); } catch (err) { setError(err.message.replace('Firebase: ', '')); }
+        e.preventDefault();
+        setError('');
+        setMessage('');
+        try {
+            if (isLogin) {
+                await logIn(email, password);
+            } else {
+                await signUp(email, password);
+                setMessage('Account created! Please log in.');
+                setIsLogin(true);
+            }
+        } catch (err) {
+            setError(err.message.replace('Firebase: ', ''));
+        }
     };
     const handlePasswordReset = async () => {
         if (!email) { setError('Please enter your email address to reset your password.'); return; }
@@ -398,7 +410,18 @@ const MyListPage = ({ setPage, setSelectedDrama }) => {
         fetchWatchlist();
     }, [user]);
 
-    if(loading) return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Loading My List...</div>;
+    if(loading) return (
+        <div className="bg-gray-900 text-white min-h-screen">
+            <Header setPage={setPage} />
+            <main className="container mx-auto p-8">
+                <h1 className="text-4xl font-bold mb-6">My List</h1>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+                </div>
+            </main>
+            <Footer setPage={setPage} />
+        </div>
+    );
 
     return (
         <div className="bg-gray-900 text-white min-h-screen">
@@ -675,5 +698,7 @@ function App() {
     return <div className="antialiased">{renderPage()}</div>;
 }
 
+// This is the main component that should be exported.
+// It wraps the entire App in the AuthProvider.
 const AppWrapper = () => (<AuthProvider><App /></AuthProvider>);
 export default AppWrapper;
